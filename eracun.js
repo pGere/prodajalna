@@ -196,6 +196,7 @@ var vrniRacune = function(callback) {
 }
 
 // Registracija novega uporabnika
+var msg = "";
 streznik.post('/prijava', function(zahteva, odgovor) {
   var form = new formidable.IncomingForm();
   
@@ -208,12 +209,18 @@ streznik.post('/prijava', function(zahteva, odgovor) {
     	  Address, City, State, Country, PostalCode, \
     	  Phone, Fax, Email, SupportRepId) \
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
-      //TODO: add fields and finalize
-      //stmt.run("", "", "", "", "", "", "", "", "", "", "", 3); 
-      //stmt.finalize();
+      stmt.run(polja.FirstName, polja.LastName, polja.CompileStep, polja.Address, polja.City, polja.State, polja.Country, 
+               polja.PostalCode, polja.Phone, polja.Fax, polja.Email, 3);
     } catch (err) {
       napaka2 = true;
     }
+    if(napaka2 == true){
+       msg = "Prišlo je do napake pri registraciji nove stranke. Prosim preverite vnešene podatke in poskusite znova";
+     }
+     if(napaka2 == false){
+       msg = "Stranka je bila uspešno registrirana.";
+       odgovor.redirect("/prijava");
+     }
   
     odgovor.end();
   });
@@ -223,7 +230,8 @@ streznik.post('/prijava', function(zahteva, odgovor) {
 streznik.get('/prijava', function(zahteva, odgovor) {
   vrniStranke(function(napaka1, stranke) {
       vrniRacune(function(napaka2, racuni) {
-        odgovor.render('prijava', {sporocilo: "", seznamStrank: stranke, seznamRacunov: racuni});  
+        odgovor.render('prijava', {sporocilo: msg, seznamStrank: stranke, seznamRacunov: racuni});
+        msg = "";  
       }) 
     });
 })
